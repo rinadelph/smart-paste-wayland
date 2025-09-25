@@ -1,40 +1,43 @@
-# Smart Paste Script for Wayland/Hyprland
+# Clip2Path - Smart Clipboard Handler for Wayland/Hyprland
 
-This script provides intelligent clipboard pasting functionality that automatically handles both text and images.
+This script provides intelligent clipboard handling functionality that automatically manages both text and images in Wayland environments.
 
 ## Features
 - Detects clipboard content type (text or image)
-- For images: saves to `/tmp` and pastes the file path instead
-- For text: performs normal paste operation
-- Includes error handling and logging
+- For images: saves to `/tmp` and converts clipboard content to file path
+- For text: passes through unchanged
+- Works seamlessly with Hyprland keybindings
 
 ## Prerequisites
 - Wayland session
 - `wl-clipboard` tools (wl-copy, wl-paste)
-- `wtype` utility
 
 ## Usage
 1. Copy the script to your system
-2. Make it executable: `chmod +x smart-paste.sh`
-3. Run the script: `./smart-paste.sh`
+2. Make it executable: `chmod +x clip2path`
+3. The script is typically used in Hyprland keybindings, not run directly
 
 ## How It Works
-1. Checks if clipboard has content using `wl-paste --list-types`
+1. Checks clipboard content types using `wl-paste --list-types`
 2. If image data is detected:
-   - Extracts the image format
-   - Saves the image to `/tmp/pasted_image_[timestamp].[extension]`
-   - Copies the file path to clipboard
-   - Simulates Ctrl+V to paste the path
+   - Extracts the image format extension
+   - Saves the image to `/tmp/clip_[timestamp].[extension]`
+   - Outputs the file path to stdout
 3. If text data is detected:
-   - Simulates Ctrl+V to paste the text directly
+   - Outputs the text content unchanged
 
 ## Example Hyprland Binding
-To use with a keybinding in Hyprland, add to your `hyprland.conf`:
+The script is already bound to your Insert key in Hyprland:
 ```
-bind = , Insert, exec, /path/to/smart-paste.sh
+bind = , Insert, exec, ~/.local/bin/clip2path | wl-copy && wtype -M ctrl -k v
 ```
 
+This binding:
+1. Runs clip2path which processes clipboard content
+2. Pipes the output (file path for images, text for regular content) to wl-copy
+3. Uses wtype to simulate Ctrl+V to paste the content
+
 ## Notes
-- Images are saved in their original format when possible
-- Temporary files are named with timestamps to avoid conflicts
-- Script logs operations with timestamps for debugging
+- Images are automatically saved with appropriate extensions
+- Temporary image files use Unix timestamps to prevent naming conflicts
+- The script is optimized for use with keybindings rather than direct execution
