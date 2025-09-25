@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+types=$(wl-paste --list-types 2>/dev/null)
+
+if grep -q '^image/' <<<"$types"; then
+    # It's an image - save it and return the path
+    ext=$(grep -m1 '^image/' <<<"$types" | cut -d/ -f2 | cut -d';' -f1)
+    # Handle common formats
+    case "$ext" in
+        jpeg|jpg) ext="jpg" ;;
+        png) ext="png" ;;
+        gif) ext="gif" ;;
+        bmp) ext="bmp" ;;
+        webp) ext="webp" ;;
+        *) ext="png" ;;
+    esac
+    file="/tmp/clip_$(date +%s).${ext}"
+    wl-paste > "$file"
+    echo "$file"
+else
+    # For text, just pass it through
+    wl-paste --no-newline
+fi
